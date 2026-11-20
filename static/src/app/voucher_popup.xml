@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_voucher_folio.VoucherPopup">
+        <div class="popup popup-voucher-folio">
+            <div class="modal-header">
+                <h4 class="modal-title"><t t-esc="props.title"/></h4>
+            </div>
+            <div class="modal-body text-start">
+                <p class="mb-2">
+                    <b t-esc="props.methodName"/> · <span t-esc="props.amount"/>
+                </p>
+                <t t-if="state.mode === 'folio'">
+                    <label class="form-label">N° de operación del voucher de la máquina</label>
+                    <input class="form-control form-control-lg voucher-folio-input" type="text"
+                           inputmode="numeric" autocomplete="off"
+                           t-model="state.folio" t-ref="folio" placeholder="Ej: 001234"/>
+                </t>
+                <t t-else="">
+                    <p class="text-muted small mb-2">
+                        Solo si la máquina falló y no hay voucher. El pago quedará marcado como
+                        "Autorizado sin folio" para seguimiento.
+                    </p>
+                    <label class="form-label">Clave de autorización</label>
+                    <input class="form-control form-control-lg voucher-pin-input mb-2" type="password"
+                           autocomplete="off" t-model="state.pin" t-ref="pin"/>
+                    <label class="form-label">Motivo</label>
+                    <input class="form-control voucher-reason-input" type="text" autocomplete="off"
+                           t-model="state.reason" placeholder="Ej: máquina se trabó, no imprimió"/>
+                </t>
+                <div t-if="state.error" class="alert alert-danger mt-2 mb-0 voucher-error" t-esc="state.error"/>
+            </div>
+            <div class="footer footer-flex modal-footer">
+                <t t-if="state.mode === 'folio'">
+                    <div class="button confirm highlight btn btn-lg btn-primary voucher-confirm"
+                         t-att-class="{'disabled': !folioValid}" t-on-click="confirmFolio">Confirmar folio</div>
+                    <div class="button btn btn-lg btn-warning voucher-no-folio" t-on-click="goAuth">Sin folio…</div>
+                    <div class="button cancel btn btn-lg btn-secondary" t-on-click="cancel">Volver</div>
+                </t>
+                <t t-else="">
+                    <div class="button confirm highlight btn btn-lg btn-danger voucher-authorize"
+                         t-att-class="{'disabled': !canAuthorize}" t-on-click="authorize">Autorizar</div>
+                    <div class="button btn btn-lg btn-secondary voucher-back" t-on-click="goBack">Volver</div>
+                </t>
+            </div>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Formulario estándar: mostrar siempre el folio y el motivo -->
+    <record id="view_pos_payment_form_voucher" model="ir.ui.view">
+        <field name="name">pos.payment.form.voucher</field>
+        <field name="model">pos.payment</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_payment_form"/>
+        <field name="arch" type="xml">
+            <field name="transaction_id" position="attributes">
+                <attribute name="string">Folio voucher</attribute>
+                <attribute name="invisible">not transaction_id and not require_voucher_ref</attribute>
+            </field>
+            <field name="transaction_id" position="after">
+                <field name="require_voucher_ref" invisible="1"/>
+                <field name="voucher_missing" invisible="not voucher_missing"/>
+                <field name="voucher_note" invisible="not voucher_missing"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_pos_payment_tree_voucher" model="ir.ui.view">
+        <field name="name">pos.payment.tree.voucher</field>
+        <field name="model">pos.payment</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_payment_tree"/>
+        <field name="arch" type="xml">
+            <field name="amount" position="after">
+                <field name="transaction_id" string="Folio voucher" optional="show"/>
+                <field name="voucher_missing" optional="show" widget="boolean"/>
+                <field name="voucher_pending" column_invisible="True"/>
+            </field>
+            <xpath expr="//tree" position="attributes">
+                <attribute name="decoration-danger">voucher_pending</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_pos_payment_search_voucher" model="ir.ui.view">
+        <field name="name">pos.payment.search.voucher</field>
+        <field name="model">pos.payment</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_payment_search"/>
+        <field name="arch" type="xml">
+            <field name="pos_order_id" position="after">
+                <field name="transaction_id" string="Folio voucher"/>
+                <filter name="voucher_required" string="Pagos con tarjeta (exigen folio)"
+                        domain="[('require_voucher_ref', '=', True)]"/>
+                <filter name="voucher_missing" string="Autorizados sin folio"
+                        domain="[('voucher_missing', '=', True)]"/>
+                <filter name="voucher_pending" string="Folio pendiente"
+                        domain="[('voucher_pending', '=', True)]"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Seguimiento: lista editable solo para completar folios faltantes -->
+    <record id="view_pos_payment_tree_voucher_followup" model="ir.ui.view">
+        <field name="name">pos.payment.tree.voucher.followup</field>
+        <field name="model">pos.payment</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <tree string="Folios de voucher" editable="bottom" create="0" delete="0"
+                  decoration-danger="voucher_pending">
+                <field name="currency_id" column_invisible="True"/>
+                <field name="payment_date" readonly="1"/>
+                <field name="session_id" readonly="1" optional="hide"/>
+                <field name="pos_order_id" readonly="1"/>
+                <field name="payment_method_id" readonly="1"/>
+                <field name="amount" readonly="1" sum="Total"/>
+                <field name="transaction_id" string="Folio voucher" readonly="not voucher_missing" width="160px"/>
+                <field name="voucher_missing" readonly="1"/>
+                <field name="voucher_note" readonly="1"/>
+                <field name="voucher_pending" column_invisible="True"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_pos_payment_voucher_followup" model="ir.actions.act_window">
+        <field name="name">Folios de voucher</field>
+        <field name="res_model">pos.payment</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_pos_payment_tree_voucher_followup"/>
+        <field name="search_view_id" ref="point_of_sale.view_pos_payment_search"/>
+        <field name="domain">[('require_voucher_ref', '=', True)]</field>
+        <field name="context">{'search_default_voucher_pending': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No hay folios pendientes</p>
+            <p>Aquí aparecen los pagos con tarjeta. Los autorizados sin folio se marcan en rojo
+               hasta que alguien complete el folio.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_pos_payment_voucher_followup"
+              name="Folios de voucher"
+              parent="point_of_sale.menu_point_of_sale"
+              action="action_pos_payment_voucher_followup"
+              sequence="4"
+              groups="point_of_sale.group_pos_manager"/>
+</odoo>

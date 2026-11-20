@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_voucher_folio.OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('paymentlines')]" position="inside">
+            <div t-if="line.voucher_folio" class="voucher-folio-receipt small">Folio voucher: <t t-esc="line.voucher_folio"/></div>
+            <div t-elif="line.voucher_missing" class="voucher-folio-receipt small">Sin folio (autorizado)</div>
+        </xpath>
+    </t>
+</templates>

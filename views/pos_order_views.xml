@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pos_pos_form_voucher" model="ir.ui.view">
+        <field name="name">pos.order.form.voucher</field>
+        <field name="model">pos.order</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='payment_ids']/tree/field[@name='amount']" position="after">
+                <field name="transaction_id" string="Folio voucher"/>
+                <field name="voucher_missing" optional="show"/>
+                <field name="voucher_note" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
